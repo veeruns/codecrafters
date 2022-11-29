@@ -5,6 +5,7 @@ import (
 	"io"
 
 	// Uncomment this block to pass the first stage
+
 	"net"
 	"os"
 )
@@ -28,20 +29,22 @@ func main() {
 	}
 	fmt.Println("Reading request from test")
 	for {
-		readbuf := make([]byte, 32768)
-		nbytes, err := conn.Read(readbuf)
-		if err == io.EOF {
-			fmt.Printf("EOF received: %s\n", err.Error())
-			break
-		} else {
-			fmt.Printf("Unable to read from socket: %s\n", err.Error())
-			os.Exit(1)
+		readbuf := make([]byte, 1024)
+
+		if _, err := conn.Read(readbuf); err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				fmt.Printf("Unable to read from socket: %s\n", err.Error())
+				os.Exit(1)
+			}
 		}
-		fmt.Printf("Number of bytes read is %d\n", nbytes)
+		//fmt.Printf("Number of bytes read is %d\n", nbytes)
 		fmt.Printf("Read Request: %s", string(readbuf))
 		resp := redisReponse("PONG")
 		conn.Write([]byte(resp))
 	}
+
 }
 
 func pingResponse() {
